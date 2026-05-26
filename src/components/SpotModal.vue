@@ -1,3 +1,4 @@
+<!-- модальное окно редактирования -->
 <template>
 <div class="modal" @click.self="$emit('close')">
     <div class="modal-content">
