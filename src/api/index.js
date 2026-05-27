@@ -9,7 +9,9 @@ export default {
   get(url) {
     return api.get(url)
   },
-
+  delete(url) {
+    return api.delete(url)
+  },
   // Стоянки
   getLots() {
     return api.get('/lots')
@@ -58,6 +60,15 @@ export default {
   getCars() {
     return api.get('/cars')
   },
+  createCar(data) {
+    return api.post('/cars', data)
+  },
+  updateCar(id, data) {
+    return api.put(`/cars/${id}`, data)
+  },
+  deleteCar(id) {
+    return api.delete(`/cars/${id}`)
+  },
 
   // Владельцы
   getOwners() {
@@ -81,10 +92,23 @@ export default {
   filterSessions(data) {
     return api.post('/reports/sessions', data)
   },
-  
+
   getSessionBySpotId(spotId) {
     return api.get(`/spots/${spotId}/sessions`)
-  }
+  },
 
+  // Клиенты
+  getClients() {
+    return api.get('/clients')
+  },
+  createClient(data) {
+    return api.post('/clients', data)
+  },
+  updateClient(id, data) {
+    return api.put(`/clients/${id}`, data)
+  },
+  deleteClient(id) {
+    return api.delete(`/clients/${id}`)
+  }
 
 }
