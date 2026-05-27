@@ -157,16 +157,39 @@ const saveClient = async () => {
   try {
     if (isEditing.value) {
       // Обновление владельца
-      await api.put(`/clients/${form.value.owner.id}`, form.value.owner)
+     const response = await api.updateClient(form.value.owner.id, form.value.owner)
+      console.log("Response from saveClient ", response)
+           // 2. Получаем текущие машины клиента из БД
+      const currentClient = clients.value.find(c => c.owner.id === form.value.owner.id)
+      const currentCarIds = currentClient?.cars.map(c => c.id) || []
+      const newCarIds = form.value.cars.filter(c => c.id).map(c => c.id)
       
+      // 3. Удаляем машины, которых нет в новой форме
+      const toDelete = currentCarIds.filter(id => !newCarIds.includes(id))
+      for (const carId of toDelete) {
+        await api.deleteCar(carId)
+        console.log(`Удалена машина ${carId}`)
+      }
       // Обновление машин (упрощённо: удаляем старые, добавляем новые)
-      // Для простоты пока не трогаем машины при редактировании
+      for (const car of form.value.cars) {
+        if (car.id) {
+          // Если машина с ID — обновляем
+          await api.updateCar(car.id, car)
+        } else {
+          // Если новая машина — создаём
+          await api.createCar({            
+            plateNumber: car.plateNumber,
+            brand: car.brand,
+            ownerId: form.value.owner.id })
+        }
+      }
     } else {
-      // Создание нового
-      await api.post('/clients', {
+      // Создание нового клиента
+      const response = await api.createClient( {
         owner: form.value.owner,
         cars: form.value.cars.filter(c => c.plateNumber || c.brand)
       })
+      console.log('Response from saveClient', response)
     }
     await loadClients()
     closeModal()
@@ -181,7 +204,7 @@ const saveClient = async () => {
 const deleteClient = async (id) => {
   if (confirm('Удалить клиента?')) {
     try {
-      await api.delete(`/clients/${id}`)
+      await api.deleteClient(id)
       await loadClients()
     } catch (error) {
       console.error('Ошибка удаления:', error)

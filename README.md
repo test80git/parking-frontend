@@ -1,42 +1,119 @@
-# frontend
+# 📁 Фронтенд: `parking-frontend`
 
-This template should help get you started developing with Vue 3 in Vite.
+```markdown
+# 🅿️ Parking Frontend - Автостоянка (клиентская часть)
 
-## Recommended IDE Setup
+Веб-интерфейс для управления автостоянкой. Позволяет визуально управлять парковочными местами, вести учёт клиентов и автомобилей, отслеживать историю заездов и выездов.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## 📋 Требования
 
-## Recommended Browser Setup
+- Node.js 20+
+- npm 10+
+- Бэкенд-сервис (см. [parking-backend](https://github.com/test80git/parking-backend))
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+## 🚀 Быстрый старт
 
-## Type Support for `.vue` Imports in TS
+```bash
+# Клонировать репозиторий
+git clone https://github.com/test80git/parking-frontend.git
+cd parking-frontend
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+# Установить зависимости
 npm install
-```
 
-### Compile and Hot-Reload for Development
-
-```sh
+# Запустить в режиме разработки
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+Приложение будет доступно по адресу: `http://localhost:5173`
 
-```sh
+## 🏗️ Сборка для production
+
+```bash
 npm run build
 ```
+
+## 🛠️ Технологии
+
+| Технология | Версия | Назначение |
+|------------|--------|------------|
+| Vue | 3.x | Фреймворк |
+| Vite | 8.x | Сборщик |
+| Pinia | 2.x | Управление состоянием |
+| Vue Router | 4.x | Маршрутизация |
+| Axios | 1.x | HTTP-клиент |
+| TypeScript | 5.x | Типизация |
+
+## 📁 Структура проекта
+
+```
+src/
+├── api/                 # API-клиент (запросы к бэкенду)
+├── components/          # Переиспользуемые компоненты
+│   ├── DateTimeDisplay.vue
+│   ├── ParkingSpot.vue
+│   ├── PaymentModal.vue
+│   ├── SearchFilter.vue
+│   ├── SpotModal.vue
+│   └── StatusFilter.vue
+├── stores/              # Pinia хранилища
+│   └── parking.js
+├── views/               # Страницы
+│   ├── ParkingView.vue  # Карта парковки
+│   ├── ClientsView.vue  # Управление клиентами
+│   ├── HistoryView.vue  # История заездов/выездов
+│   └── LotsView.vue     # Управление стоянками
+├── styles/              # Глобальные стили
+│   └── parking.css
+├── App.vue              # Корневой компонент
+├── main.js              # Точка входа
+└── router/              # Маршрутизация
+    └── index.ts
+```
+
+## 🖥️ Функциональные страницы
+
+| Страница | Описание |
+|----------|----------|
+| 🗺️ Карта парковки | Визуальная сетка мест, бронирование, занятие, освобождение |
+| 👥 Клиенты | CRUD операций с клиентами и их автомобилями |
+| 📜 Заезды/Выезды | История с фильтрацией и пагинацией |
+| 🅿️ Стоянки | Создание/редактирование нескольких стоянок |
+
+## 🔧 Настройка
+
+Для подключения к бэкенду измените `baseURL` в `src/api/index.js`:
+
+```javascript
+const api = axios.create({
+  baseURL: 'http://localhost:8080/api/v1',  // URL вашего бэкенда
+  headers: { 'Content-Type': 'application/json' }
+})
+```
+
+## 🖼️ Скриншоты
+
+### Карта парковки
+
+![Карта парковки](./screenshots/parking-map.png)
+
+### Управление клиентами
+
+![Клиенты](./screenshots/clients.png)
+
+### История заездов
+
+![История](./screenshots/history.png)
+
+### Управление стоянками
+
+![Стоянки](./screenshots/lots.png)
+
+## 🔗 Связанные репозитории
+
+- [parking-backend](https://github.com/test80git/parking-backend) — серверная часть
+
+
+## 📝 Лицензия
+
+MIT
