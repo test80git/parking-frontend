@@ -1,11 +1,14 @@
 <template>
 <div class="parking-table">
-    <h2>Карта парковки</h2>
+    <h2>Карта автостоянки</h2>
+    <div v-if="store.currentLot" class="lot-info-bar">
+  🅿️     {{ store.currentLot.name }} | {{ store.currentLot.colsCount }}×{{ store.currentLot.rowsCount }} | {{ store.currentLot.pricePerDay }} ₽/день
+    </div>
     <DateTimeDisplay />
     <SearchFilter v-model:search-query="searchQuery" @clear="clearSearch" />
     <StatusFilter v-model="statusFilter" />
     <div v-if="store.loading" class="loading">Загрузка...</div>
-    <div class="parking-grid">
+    <div class="parking-grid" :style="{ gridTemplateColumns: `repeat(${store.currentLot?.colsCount || 5}, 1fr)` }">
         <ParkingSpot v-for="spot in filteredAndSearchedSpots" :key="spot.id" :spot="spot" @click="openEditModal" />
     </div>
     <!-- Модальное окно (компонент) -->
@@ -22,8 +25,9 @@ import {
     ref,
     computed,
     onMounted,
-    onUnmounted,
-    watch
+    onUnmounted,   
+    watch,
+    onActivated, onDeactivated
 } from 'vue'
 import {
     useParkingStore
@@ -146,7 +150,7 @@ const activeBookings = computed(() => {
 
 const openEditModal = async (spot) => {
     try {
-        const sessions = await api.get(`/spots/${spot.id}/sessions`)
+        const sessions = await api.getSessionBySpotId(spot.id)
         const now = new Date()
         const futureBookings = sessions.data.filter(s => new Date(s.startTime) > now)
 
@@ -306,15 +310,40 @@ const clearSearch = () => {
     searchQuery.value = ''
 }
 
+const currentDate = ref('')
+const currentTime = ref('')
+let timerInterval = null
+
+const updateDateTime = () => {
+  const now = new Date()
+  currentDate.value = now.toLocaleDateString('ru-RU')
+  currentTime.value = now.toLocaleTimeString('ru-RU')
+}
+
 // Загрузка
 onMounted(async () => {
-    await store.loadSpots()
-    await store.loadCarsAndOwners()
+  updateDateTime()
+  timerInterval = setInterval(updateDateTime, 1000)
+  await store.loadCurrentLot()
+  await store.loadSpots()
+  await store.loadCarsAndOwners()
 })
 
 onUnmounted(() => {
     if (timerInterval) clearInterval(timerInterval)
 })
+
+onActivated(() => {
+  // При переключении на вкладку
+  updateDateTime()
+  timerInterval = setInterval(updateDateTime, 1000)
+})
+
+onDeactivated(() => {
+  // При уходе с вкладки
+  if (timerInterval) clearInterval(timerInterval)
+})
+
 </script>
 
 

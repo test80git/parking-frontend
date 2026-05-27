@@ -9,36 +9,51 @@ export const useParkingStore = defineStore('parking', () => {
   const owners = ref([])
   const loading = ref(false)
   const currentLotId = ref(1)
+  const currentLot = ref(null)
   
-  // Создание мест (5x5)
-  const createDefaultSpots = () => {
-    const spots = []
-    const rows = ['A', 'B', 'C', 'D', 'E']
-    for (let i = 0; i < rows.length; i++) {
-      for (let j = 1; j <= 5; j++) {
-        spots.push({
-          id: i * 5 + j,
-          number: `${rows[i]}${j}`,
-          status: 'free',
-          carBrand: '',
-          carNumber: '',
-          bookingName: '',
-          phone: '',
-          dateTimeIn: '',
-          dateTimeOut: '',
-          isPaid: false,
-          activeSessionId: null
-        })
-      }
-    }
-    return spots
+  const loadCurrentLot = async () => {
+  try {
+    const response = await api.get('/lots/current')
+    currentLot.value = response.data
+    currentLotId.value = response.data.id
+  } catch (error) {
+    console.error('Ошибка загрузки текущей стоянки:', error)
   }
+}
+
+  // // Создание мест (5x5)
+  // const createDefaultSpots = () => {
+  //   const spots = []
+  //   const rows = ['A', 'B', 'C', 'D', 'E']
+  //   for (let i = 0; i < rows.length; i++) {
+  //     for (let j = 1; j <= 5; j++) {
+  //       spots.push({
+  //         id: i * 5 + j,
+  //         number: `${rows[i]}${j}`,
+  //         status: 'free',
+  //         carBrand: '',
+  //         carNumber: '',
+  //         bookingName: '',
+  //         phone: '',
+  //         dateTimeIn: '',
+  //         dateTimeOut: '',
+  //         isPaid: false,
+  //         activeSessionId: null
+  //       })
+  //     }
+  //   }
+  //   return spots
+  // }
   
   // Загрузка с бэкенда
   const loadSpots = async () => {
     loading.value = true
     try {
       console.log('=== ЗАГРУЗКА ДАННЫХ ===')
+      // Сначала загружаем текущую стоянку, если ещё не загружена
+    if (!currentLot.value) {
+      await loadCurrentLot()
+    }
 
       const [spotsRes, sessionsRes] = await Promise.all([
         api.getSpots(currentLotId.value),
@@ -52,7 +67,7 @@ export const useParkingStore = defineStore('parking', () => {
       const spots = spotsRes.data.map(spot => {
         const session = sessionsRes.data.find(s => s.spotId === spot.id)
 
-        console.log(`Обработка места ${spot.spotNumber}:`, {
+        console.info(`Обработка места ${spot.spotNumber}:`, {
           spotStatusИзБД: spot.status,
           sessionНайдена: !!session,
           sessionStatus: session?.status
@@ -72,14 +87,14 @@ export const useParkingStore = defineStore('parking', () => {
           activeSessionId: session?.id || null
         }
       }).sort((a, b) => {
-  // Сортировка по номеру места (A1, A2, B1, B2...)
-  const numA = parseInt(a.number.match(/\d+/)[0])
-  const numB = parseInt(b.number.match(/\d+/)[0])
-  const letterA = a.number.match(/[A-Z]/)[0]
-  const letterB = b.number.match(/[A-Z]/)[0]
-  if (letterA === letterB) return numA - numB
-  return letterA.localeCompare(letterB)
-})
+         // Сортировка по номеру места (A1, A2, B1, B2...)
+          const numA = parseInt(a.number.match(/\d+/)[0])
+          const numB = parseInt(b.number.match(/\d+/)[0])
+          const letterA = a.number.match(/[A-Z]/)[0]
+          const letterB = b.number.match(/[A-Z]/)[0]
+          if (letterA === letterB) return numA - numB
+            return letterA.localeCompare(letterB)
+          })
       
       console.log('Итоговые места после маппинга:', spots)
 
@@ -231,7 +246,9 @@ export const useParkingStore = defineStore('parking', () => {
     saveSession,
     loadCarsAndOwners,
     paySession,
-    deleteSession
+    deleteSession,
+    currentLot,
+    loadCurrentLot
   }
 })
 

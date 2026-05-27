@@ -304,7 +304,7 @@ const addNewBooking = async () => {
         console.log('Бронь создана:', response.data)
 
         // Обновить данные
-        const updatedSessions = await api.get(`/spots/${props.spot.id}/sessions`)
+        const updatedSessions = await api.getSessionBySpotId(props.spot.id)
         const now = new Date()
         const futureBookings = updatedSessions.data.filter(s => new Date(s.startTime) > now)
 
